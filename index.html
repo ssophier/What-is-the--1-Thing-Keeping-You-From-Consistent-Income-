@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monetization Blocker Quiz</title>
+    <!-- REQUIRED: jQuery for MailerLite Integration -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <style>
+        :root {
+            /* Brand Palette */
+            --brand-dark: #3f4e44;   /* Deep Green/Grey */
+            --brand-light: #f5f3e7;  /* Cream/Off-white */
+            --brand-accent: #9b8cff; /* Purple Accent */
+
+            /* Gradients & Backgrounds */
+            --bg-gradient: linear-gradient(135deg, #2a362e 0%, #3f4e44 50%, #2a362e 100%);
+            
+            /* Glassmorphism variables */
+            --card-bg: rgba(245, 243, 231, 0.05);
+            --card-border: 1px solid rgba(245, 243, 231, 0.15);
+            --card-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+            
+            /* Typography & Colors */
+            --text-primary: #f5f3e7;
+            --text-secondary: rgba(245, 243, 231, 0.7);
+            --accent-color: #9b8cff;
+            --accent-glow: 0 0 20px rgba(155, 140, 255, 0.2);
+            
+            --button-bg: #f5f3e7;
+            --button-text: #3f4e44;
+            --button-hover: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            line-height: 1.6;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* Typography */
+        h1, h2, h3 {
+            font-family: 'Georgia', 'Times New Roman', serif;
+        }
+
+        h1 {
+            font-size: 3rem;
+            text-align: center;
+            margin-bottom: 0.5rem;
+            font-weight: normal;
+            line-height: 1.1;
+            color: var(--brand-light);
+        }
+
+        h2 {
+            font-size: 1.2rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            font-style: italic;
+            font-weight: normal;
+            color: var(--text-secondary);
+            font-family: 'Georgia', serif;
+            max-width: 600px;
+        }
+
+        /* Container */
+        .container {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            animation: fadeIn 0.8s ease-out;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Glass Cards */
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: var(--card-border);
+            border-radius: 24px;
+            padding: 40px 50px;
+            box-shadow: var(--card-shadow);
+            position: relative;
+            width: 100%;
+        }
+
+        /* Buttons */
+        .btn {
+            background-color: var(--button-bg);
+            color: var(--button-text);
+            border: none;
+            padding: 16px 36px;
+            border-radius: 4px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Helvetica Neue', sans-serif;
+            display: inline-block;
+            text-decoration: none;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            background-color: var(--button-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(245, 243, 231, 0.2);
+        }
+
+        /* Quiz Options */
+        .btn-option {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+            width: 100%;
+            text-align: left;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            padding: 18px 25px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .btn-option:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--accent-color);
+            transform: translateX(5px);
+        }
+
+        .circle-indicator {
+            height: 18px;
+            width: 18px;
+            border: 1px solid rgba(255,255,255,0.4);
+            border-radius: 50%;
+            margin-right: 20px;
+            flex-shrink: 0;
+            transition: all 0.2s;
+        }
+
+        .btn-option:hover .circle-indicator {
+            border-color: var(--accent-color);
+            background-color: var(--accent-color);
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            width: 100%;
+            background-color: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            height: 4px;
+            margin: 25px 0;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: var(--accent-color);
+            width: 0%;
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--accent-glow);
+        }
+
+        /* Inputs */
+        .input-field {
+            width: 100%;
+            padding: 15px 20px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(0,0,0,0.2);
+            color: white;
+            font-size: 1rem;
+            margin-bottom: 15px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        
+        .input-field:focus {
+            border-color: var(--accent-color);
+        }
+
+        /* Utility */
+        .hidden { display: none; }
+        .fade-in { animation: fadeIn 0.5s ease-out; }
+
+        /* Landing Page Grid */
+        .landing-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        
+        .info-box {
+            background: rgba(255,255,255,0.03);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.05);
+            text-align: center;
+        }
+
+        .info-box h3 {
+            font-family: 'Helvetica Neue', sans-serif;
+            font-size: 0.9rem;
+            color: var(--accent-color);
+            margin-bottom: 8px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .info-box p {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin: 0;
+            line-height: 1.4;
+        }
+
+        /* Results Styling */
+        .result-badge {
+            display: inline-block;
+            border: 1px solid var(--accent-color);
+            color: var(--accent-color);
+            padding: 5px 15px;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 20px;
+        }
+
+        .quote-box {
+            border-left: 3px solid var(--accent-color);
+            background: linear-gradient(90deg, rgba(155, 140, 255, 0.05) 0%, rgba(0,0,0,0) 100%);
+            padding: 20px;
+            font-style: italic;
+            margin: 20px 0;
+            color: var(--text-primary);
+            border-radius: 0 8px 8px 0;
+        }
+
+        .result-section-title {
+            color: var(--accent-color);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-family: 'Helvetica Neue', sans-serif;
+        }
+
+        @media (max-width: 700px) {
+            .landing-grid { grid-template-columns: 1fr; }
+            h1 { font-size: 2.2rem; }
+            .card { padding: 25px; }
+            body { padding: 15px; justify-content: flex-start; }
+            .container { margin-top: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- LANDING PAGE -->
+    <div id="landing-page" class="container">
+        <h1>What is the #1 Thing Keeping You From Consistent Income?</h1>
+        <h2>Discover your monetisation blocker (and exactly how to fix it)</h2>
+        
+        <div style="text-align: center; margin: 30px 0;">
+            <button class="btn" onclick="startQuiz()">Start the Assessment →</button>
+        </div>
+
+        <div class="card">
+            <p style="text-align: center; font-size: 1.1rem; margin-bottom: 30px; font-family: 'Georgia', serif; font-style: italic; color: var(--text-primary);">In just 2 minutes, you'll discover:</p>
+            
+            <div class="landing-grid">
+                <div class="info-box">
+                    <h3>The Diagnosis</h3>
+                    <p>Why you're stuck at your current income level.</p>
+                </div>
+                <div class="info-box">
+                    <h3>The Root Cause</h3>
+                    <p>The hidden psychological or strategic reason behind it.</p>
+                </div>
+                <div class="info-box">
+                    <h3>The Fix</h3>
+                    <p>A free resource to solve it immediately.</p>
+                </div>
+            </div>
+
+            <div style="display: flex; justify-content: center; gap: 20px; margin-top: 30px; color: var(--text-secondary); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px;">
+                <span>⏱ 2 minutes</span>
+                <span>📝 7 questions</span>
+                <span>✨ Free Plan</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- QUIZ PAGE -->
+    <div id="quiz-page" class="container hidden">
+        <div style="text-align: center; margin-bottom: 10px; color: var(--text-secondary); font-size: 0.8rem; letter-spacing: 2px; text-transform: uppercase;">
+            Question <span id="current-question-num">1</span> of 7
+        </div>
+        
+        <div class="progress-container">
+            <div id="progress-bar" class="progress-bar"></div>
+        </div>
+
+        <div class="card fade-in">
+            <h2 id="question-text" style="text-align: left; font-style: normal; font-size: 1.4rem; margin-bottom: 30px; color: var(--text-primary); max-width: 100%;">Question goes here?</h2>
+            <div id="options-container">
+                <!-- Options injected via JS -->
+            </div>
+        </div>
+        
+        <div style="margin-top: 20px; width: 100%; max-width: 800px;">
+            <button id="prev-btn" style="background: transparent; border: none; color: var(--text-secondary); cursor: pointer; font-size: 0.9rem; padding: 10px;" onclick="prevQuestion()">← Previous</button>
+        </div>
+    </div>
+
+    <!-- EMAIL CAPTURE PAGE -->
+    <div id="email-page" class="container hidden">
+        <div class="card fade-in" style="text-align: center; max-width: 600px;">
+            <div style="margin-bottom: 20px;">
+                <div style="width: 60px; height: 60px; border-radius: 50%; border: 1px solid var(--accent-color); display: inline-flex; align-items: center; justify-content: center; margin-bottom: 20px; background: rgba(155, 140, 255, 0.1);">
+                    <span style="font-size: 24px;">❤️</span>
+                </div>
+            </div>
+            <h1 style="font-size: 2rem; margin-bottom: 10px;">Your Results Are Ready</h1>
+            <p style="color: var(--text-secondary); margin-bottom: 30px;">Enter your email below to unlock your personalized diagnosis and get your free resource delivered to your inbox.</p>
+            
+            <form onsubmit="submitEmail(event)" style="max-width: 400px; margin: 0 auto;">
+                <input type="text" id="name-input" class="input-field" placeholder="Your First Name" required>
+                <input type="email" id="email-input" class="input-field" placeholder="Your Best Email Address" required>
+                <button type="submit" id="submit-btn" class="btn" style="width: 100%; margin-top: 10px;">Reveal My Results →</button>
+            </form>
+            
+            <p style="font-size: 0.75rem; color: rgba(255,255,255,0.3); margin-top: 20px;">We respect your privacy. Unsubscribe at any time.</p>
+        </div>
+    </div>
+
+    <!-- RESULTS PAGE -->
+    <div id="results-page" class="container hidden">
+        <div class="card fade-in">
+            <div style="text-align: center; margin-bottom: 40px;">
+                <div class="result-badge">Your Conversion Archetype</div>
+                <h1 id="result-title" style="color: var(--accent-color); margin-bottom: 10px; font-size: 2.5rem;">The Result Name</h1>
+                <p style="font-size: 1rem; color: var(--text-secondary);">Diagnosis & Fix</p>
+            </div>
+
+            <div style="margin-bottom: 30px;">
+                <div class="result-section-title">The Diagnosis</div>
+                <p id="result-diagnosis" style="color: var(--text-primary);">Diagnosis text...</p>
+            </div>
+
+            <div style="margin-bottom: 30px;">
+                <div class="result-section-title">The Root Cause (The Why)</div>
+                <p id="result-root" style="color: var(--text-secondary);">Root cause text...</p>
+            </div>
+
+            <div class="quote-box">
+                <div class="result-section-title" style="color: var(--accent-color);">The Infrastructure Fix</div>
+                <p id="result-fix" style="margin: 0;">Fix text...</p>
+            </div>
+
+            <div style="background: rgba(155, 140, 255, 0.05); border: 1px solid var(--accent-color); border-radius: 12px; padding: 30px; text-align: center; margin-top: 30px;">
+                <h3 style="color: var(--accent-color); margin-bottom: 15px; font-size: 1.2rem;">Your Prescription</h3>
+                
+                <div style="background: rgba(0,0,0,0.2); padding: 20px; border-radius: 8px; margin-bottom: 20px; display: inline-block; width: 100%; text-align: left;">
+                    <div style="display: flex; align-items: flex-start; gap: 15px;">
+                        <span style="font-size: 1.5rem;">📥</span>
+                        <div>
+                            <strong id="result-download" style="color: white; display: block; margin-bottom: 5px;">Resource Name</strong>
+                            <span id="result-what-it-does" style="font-size: 0.9rem; color: var(--text-secondary);">What it does...</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <button onclick="showConfirmation()" class="btn">Get Your Free Email Course →</button>
+            </div>
+            
+            <div style="text-align: center; margin-top: 30px;">
+                <button onclick="location.reload()" style="background: none; border: none; color: var(--text-secondary); text-decoration: underline; cursor: pointer; opacity: 0.7; font-size: 0.9rem;">Retake Assessment</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CONFIRMATION PAGE -->
+    <div id="confirmation-page" class="container hidden">
+        <div class="card fade-in" style="text-align: center; max-width: 600px;">
+            <div style="margin-bottom: 20px;">
+                <div style="width: 60px; height: 60px; border-radius: 50%; border: 1px solid var(--accent-color); display: inline-flex; align-items: center; justify-content: center; margin-bottom: 20px; background: rgba(155, 140, 255, 0.1);">
+                    <span style="font-size: 24px;">✅</span>
+                </div>
+            </div>
+            <h1 style="font-size: 2rem; margin-bottom: 10px;">It's on the way!</h1>
+            <p style="color: var(--text-secondary); margin-bottom: 30px;">Your personalized plan and free email course have been sent to your inbox.</p>
+            
+            <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 8px; margin-bottom: 30px;">
+                <p style="color: white; font-weight: bold; margin-bottom: 5px;">Important:</p>
+                <p style="font-size: 0.9rem; color: var(--text-secondary);">Please check your <strong>Promotions</strong> or <strong>Spam</strong> folder if you don't see it in the next 2 minutes.</p>
+            </div>
+
+            <a href="#" onclick="location.reload()" style="color: var(--accent-color); text-decoration: none; font-size: 0.9rem;">Return to Homepage</a>
+        </div>
+    </div>
+
+    <script>
+        // --- CONFIGURATION START ---
+        // THESE ARE YOUR EXACT MAILERLITE FORM ACTION URLS
+        const FORM_URLS = {
+            "A": "https://assets.mailerlite.com/jsonp/1737221/forms/175413345861502857/subscribe", 
+            "B": "https://assets.mailerlite.com/jsonp/1737221/forms/175414153518778204/subscribe",
+            "C": "https://assets.mailerlite.com/jsonp/1737221/forms/175414334180033871/subscribe"
+        };
+        // --- CONFIGURATION END ---
+
+        // QUIZ DATA
+        const questions = [
+            {
+                question: "Which of these best describes your current revenue situation?",
+                options: [
+                    { text: "$0 - I haven't made any money from my business yet.", type: "A" },
+                    { text: "Rollercoaster - I have good months and $0 months.", type: "B" },
+                    { text: "Consistent but capped - I’m making money, but I’m trading all my time for it.", type: "B" },
+                    { text: "I have a job, but I want to leave it to do this full-time.", type: "A" }
+                ]
+            },
+            {
+                question: "When you sit down to write content or an offer, what happens?",
+                options: [
+                    { text: "I stare at the screen. I have too many ideas and don't know which one to pick.", type: "B" },
+                    { text: "I write something, but then delete it because I’m afraid it sounds 'salesy' or 'cringe.'", type: "A" },
+                    { text: "I post consistently, but all I get are likes and comments (no DMs or sales.)", type: "C" },
+                    { text: "I don't have time to write because I'm too busy delivering work for low-paying clients.", type: "B" }
+                ]
+            },
+            {
+                question: "How do you feel about 'selling'?",
+                options: [
+                    { text: "I hate it. It feels manipulative and gross.", type: "A" },
+                    { text: "I don't mind it, I just don't know *how* to do it effectively.", type: "B" },
+                    { text: "I’m fine with it, but I don't think my audience has the money to pay me.", type: "C" },
+                    { text: "I love my work, I just wish people would buy without me having to 'convince' them.", type: "A" }
+                ]
+            },
+            {
+                question: "If you had to guess, why aren't you fully booked right now?",
+                options: [
+                    { text: "I don't have a clear 'thing' yet. I do a little bit of everything for everyone.", type: "B" },
+                    { text: "I’m invisible. People don't know I exist.", type: "C" },
+                    { text: "I’m afraid if I really 'go for it,' I’ll burn out or lose my freedom.", type: "A" },
+                    { text: "My prices are too low, but I’m terrified to raise them.", type: "A" }
+                ]
+            },
+            {
+                question: "What is your biggest fear regarding your business?",
+                options: [
+                    { text: "That I’ll build something successful but hate my life (The 'Golden Handcuffs').", type: "B" },
+                    { text: "That I’ll try my hardest and still fail publicly (The 'Imposter').", type: "A" },
+                    { text: "That I’ll have to become a 'fake guru' to make real money (The 'Sell Out').", type: "A" },
+                    { text: "That I’ll never figure this out and have to go back to a 9-5 (The 'Failure').", type: "C" }
+                ]
+            },
+            {
+                question: "Complete this sentence: 'I would make more money if only...'",
+                options: [
+                    { text: "'...I knew exactly who my ideal client was.'", type: "B" },
+                    { text: "'...I could stop overthinking and just hit publish.'", type: "A" },
+                    { text: "'...I had a proven system instead of guessing.'", type: "C" },
+                    { text: "'...I believed in myself as much as my friends say they believe in me.'", type: "A" }
+                ]
+            },
+            {
+                question: "What do you want most right now?",
+                options: [
+                    { text: "Clarity. I just want to know exactly what to do next.", type: "B" },
+                    { text: "Validation. I want proof that my idea actually works.", type: "C" },
+                    { text: "Freedom. I want a system that brings in clients without me hustling 24/7.", type: "B" },
+                    { text: "Integrity. I want to make money without losing my soul.", type: "A" }
+                ]
+            }
+        ];
+
+        const results = {
+            "A": {
+                title: "The Unfunded Visionary",
+                diagnosis: "You have a high-value vision, but low-value infrastructure. You are likely trapped in the 'Meaning vs. Money' conflict. You believe that to make money, you have to 'manipulate' or be aggressive, so you subconsciously sabotage your own growth to stay 'ethical.' You have folders full of drafts you never publish and ideas you never launch because you are waiting for them to be perfect.",
+                root: "You are trying to pay bills with passion instead of a mechanism. Passion is fuel, but it is not an engine. Without a 'Vessel' (a clear, high-ticket offer) to capture the value of your genius, your energy just dissipates. You are exhausted because you are constantly reinventing the wheel instead of building a car.",
+                fix: "You need High-Ticket Logic. You need to stop viewing sales as 'manipulation' and start viewing it as 'diagnosis.' You need to build a container for your genius that allows people to pay you what you are worth, so you can stop stressing about rent and start focusing on impact.",
+                download: "The High-Ticket Logic Sequence (5-Day Email Course)",
+                whatItDoes: "It re-wires your brain to see sales as a service and gives you the exact logic to charge premium prices without feeling 'gross.'"
+            },
+            "B": {
+                title: "The Overloaded Founder",
+                diagnosis: "You are suffering from Infrastructure Bloat. You are trying to build ten bridges at once, which means none of them actually cross the river. You likely have 'Shiny Object Syndrome'—jumping from one strategy to another (Instagram! LinkedIn! Newsletter!)—because you are terrified of picking the 'wrong' one. You are busy, but you aren't moving forward.",
+                root: "You are confusing motion with progress. You think that doing 'more' will lead to success, but in the early stages, complexity is the enemy. You don't have a traffic problem; you have a focus problem. You are trying to scale a system that doesn't exist yet.",
+                fix: "You need Radical Constraint. You need to kill 99% of your ideas to save the 1% that matters. You need to build a 'Minimum Viable Infrastructure'—one offer, one channel, one funnel—and validate it with real cash before you add anything else.",
+                download: "The Minimum Viable Business Protocol (5-Day Email Course)",
+                whatItDoes: "It forces you to stop 'guessing' and start 'testing.' You will validate one specific offer in 5 days using a 'Trojan Horse' pilot."
+            },
+            "C": {
+                title: "The Best-Kept Secret",
+                diagnosis: "You have the assets (skills, experience, maybe even an offer), but you have no Visibility that actually leads to clients. You are the 'best kept secret' in your industry. You post content, but it feels like personal branding just doesn't work for you. You get likes and 'this is so helpful!' comments, but your DMs are empty of buyers. You are waiting to be 'discovered' instead of engineering your authority.",
+                root: "You are broadcasting on a generic frequency. You are posting 'tips and tricks' (Commodity Content) instead of sharing a 'Worldview' (Authority Content). You are trying to be helpful to everyone, which makes you valuable to no one. You are stuck in the 'Friend Zone' with your audience because you haven't given them a logical reason to pay you.",
+                fix: "You need Authority Architecture. You need to stop posting for 'engagement' and start posting for 'resonance.' You need to build a content system that filters out the 'NPCs' and attracts the 'True Fans' who share your values and have the budget to pay you.",
+                download: "The Signal-to-Sale System (Checklist & Guide)",
+                whatItDoes: "It shifts your content strategy from 'chasing likes' to 'attracting leads.' It teaches you how to write the 3 specific types of posts that turn followers into buyers."
+            }
+        };
+
+        // STATE
+        let currentQuestionIndex = 0;
+        let answers = []; 
+
+        // DOM ELEMENTS
+        const landingPage = document.getElementById('landing-page');
+        const quizPage = document.getElementById('quiz-page');
+        const emailPage = document.getElementById('email-page');
+        const resultsPage = document.getElementById('results-page');
+        const confirmationPage = document.getElementById('confirmation-page');
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const progressBar = document.getElementById('progress-bar');
+        const currentQuestionNum = document.getElementById('current-question-num');
+        const prevBtn = document.getElementById('prev-btn');
+
+        // FUNCTIONS
+        function startQuiz() {
+            landingPage.classList.add('hidden');
+            quizPage.classList.remove('hidden');
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            const q = questions[currentQuestionIndex];
+            questionText.innerText = q.question;
+            currentQuestionNum.innerText = currentQuestionIndex + 1;
+            
+            // Update progress bar
+            const progress = ((currentQuestionIndex) / questions.length) * 100;
+            progressBar.style.width = `${progress}%`;
+
+            // Clear previous options
+            optionsContainer.innerHTML = '';
+
+            // Create buttons
+            q.options.forEach(opt => {
+                const btn = document.createElement('div');
+                btn.className = 'btn-option';
+                btn.innerHTML = `<div class="circle-indicator"></div><span>${opt.text}</span>`;
+                btn.onclick = () => selectAnswer(opt.type);
+                optionsContainer.appendChild(btn);
+            });
+
+            // Handle Prev Button visibility
+            if (currentQuestionIndex === 0) {
+                prevBtn.style.visibility = 'hidden';
+            } else {
+                prevBtn.style.visibility = 'visible';
+            }
+        }
+
+        function selectAnswer(type) {
+            answers[currentQuestionIndex] = type;
+            
+            if (currentQuestionIndex < questions.length - 1) {
+                currentQuestionIndex++;
+                loadQuestion();
+            } else {
+                // Go to email capture instead of results
+                showEmailCapture();
+            }
+        }
+
+        function prevQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                loadQuestion();
+            }
+        }
+
+        function showEmailCapture() {
+            quizPage.classList.add('hidden');
+            emailPage.classList.remove('hidden');
+            // Fill progress bar to 100%
+            progressBar.style.width = '100%';
+        }
+
+        function calculateResult() {
+            const counts = { A: 0, B: 0, C: 0 };
+            answers.forEach(type => {
+                if (counts[type] !== undefined) counts[type]++;
+            });
+            
+            // Find max
+            return Object.keys(counts).reduce((a, b) => counts[a] > counts[b] ? a : b);
+        }
+
+        function submitEmail(e) {
+    e.preventDefault();
+    const name = document.getElementById('name-input').value;
+    const email = document.getElementById('email-input').value;
+    const submitBtn = document.getElementById('submit-btn');
+    
+    submitBtn.innerText = "Analyzing...";
+    submitBtn.disabled = true;
+
+    const resultType = calculateResult();
+    const formUrl = FORM_URLS[resultType];
+
+    // --- JQUERY AJAX (JSONP) SUBMISSION METHOD ---
+    if (formUrl) {
+        $.ajax({
+            url: formUrl,
+            data: {
+                'fields[email]': email,
+                'fields[name]': name,
+                'ml-submit': 1,
+                'ajax': 1, 
+                'anticsrf': true
+            },
+            dataType: 'jsonp',
+            success: function(response) {
+                // MailerLite returns success even if it fails sometimes, 
+                // but JSONP usually handles the cross-origin request correctly.
+                console.log("MailerLite Success:", response);
+                showResults();
+            },
+            error: function(xhr, status, error) {
+                // JSONP errors are common even on success due to browser security,
+                // so we proceed to results regardless to not block the user.
+                console.log("MailerLite Error (proceeding anyway):", error);
+                showResults();
+            }
+        });
+    } else {
+        console.log("Form URL not configured.");
+        setTimeout(() => {
+            showResults();
+        }, 1000);
+    }
+}
+
+
+        function showResults() {
+            emailPage.classList.add('hidden');
+            resultsPage.classList.remove('hidden');
+            
+            const resultType = calculateResult();
+            const data = results[resultType];
+
+            document.getElementById('result-title').innerText = data.title;
+            document.getElementById('result-diagnosis').innerText = data.diagnosis;
+            document.getElementById('result-root').innerText = data.root;
+            document.getElementById('result-fix').innerText = data.fix;
+            document.getElementById('result-download').innerText = data.download;
+            document.getElementById('result-what-it-does').innerText = data.whatItDoes;
+        }
+
+        function showConfirmation() {
+            resultsPage.classList.add('hidden');
+            confirmationPage.classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
